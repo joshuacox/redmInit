@@ -53,21 +53,23 @@ beep:
 
 kill:
 	@docker kill `cat redminitCID`
-	@docker kill `cat redisCID`
 	@docker kill `cat postgresCID`
+	@docker kill `cat redisCID`
 
 rm-name:
 	rm  name
 
 rm-image:
 	@docker rm `cat redminitCID`
-	@docker rm `cat redisCID`
 	@docker rm `cat postgresCID`
-	@rm redminitCID
-	@rm redisCID
-	@rm postgresCID
+	@docker rm `cat redisCID`
 
-rm: kill rm-image
+rm-cids:
+	@rm redminitCID
+	@rm postgresCID
+	@rm redisCID
+
+rm: kill rm-image rm-cids
 
 clean: rm-name rm
 
