@@ -18,9 +18,6 @@ rundocker:
 	--volume=/srv/docker/redmine/redmine:/home/redmine/data \
 	--volume=/tmp:/tmp \
 	--cidfile="cid" \
-	-v /tmp:/tmp \
-	-v /var/run/docker.sock:/run/docker.sock \
-	-v $(shell which docker):/bin/docker \
 	sameersbn/redmine:2.6-latest
 
 # used to be last line above --> 	-t joshuacox/redminit
