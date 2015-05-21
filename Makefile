@@ -8,26 +8,37 @@ help:
 
 build: builddocker beep
 
-run: runpostgres rundocker beep
+run: runpostgres runredminit beep
 
-runbuild: builddocker runpostgres rundocker beep
+runbuild: builddocker runpostgres runredis runredminit beep
 
-rundocker:
-	@docker run --name=redminit \
+runredis:
+	docker run --name some-redis \
+	-d \
+	--cidfile="redisCID" \
+	--volume=/srv/docker/redis/data:/data \
+	redis \
+	redis-server --appendonly yes
+
+runredminit:
+	docker run --name=redminit \
 	-d \
 	--link=postgresql-redmine:postgresql --publish=10083:80 \
+	--link= some-redis:redis \
 	--env='REDMINE_PORT=10083' \
 	--volume=/srv/docker/redmine/redmine:/home/redmine/data \
 	--volume=/tmp:/tmp \
-	--cidfile="cid" \
-	sameersbn/redmine:2.6-latest
+	--cidfile="redminitCID" \
+	sameersbn/redmine
+
+#	sameersbn/redmine:2.6-latest
 
 # used to be last line above --> 	-t joshuacox/redminit
 
 runpostgres:
 	docker run --name=postgresql-redmine -d \
 	--env='DB_NAME=redmine_production' \
-	--cidfile="postgrescid" \
+	--cidfile="postgresCID" \
 	--env='DB_USER=redmine' --env='DB_PASS=password' \
 	--volume=/tmp:/tmp \
 	--volume=/srv/docker/redmine/postgresql:/var/lib/postgresql \
@@ -41,21 +52,27 @@ beep:
 	@aplay /usr/share/sounds/alsa/Front_Center.wav
 
 kill:
-	@docker kill `cat cid`
-	@docker kill `cat postgrescid`
+	@docker kill `cat redminitCID`
+	@docker kill `cat redisCID`
+	@docker kill `cat postgresCID`
 
 rm-name:
 	rm  name
 
 rm-image:
-	@docker rm `cat cid`
-	@docker rm `cat postgrescid`
-	@rm cid
-	@rm postgrescid
+	@docker rm `cat redminitCID`
+	@docker rm `cat redisCID`
+	@docker rm `cat postgresCID`
+	@rm redminitCID
+	@rm redisCID
+	@rm postgresCID
 
 rm: kill rm-image
 
 clean: rm-name rm
 
 enter:
-	docker exec -i -t `cat cid` /bin/bash
+	docker exec -i -t `cat redminitCID` /bin/bash
+
+pgenter:
+	docker exec -i -t `cat postgresCID` /bin/bash
