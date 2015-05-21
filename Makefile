@@ -8,7 +8,9 @@ help:
 
 build: builddocker beep
 
-run: builddocker runpostgres rundocker beep
+run: runpostgres rundocker beep
+
+runbuild: builddocker runpostgres rundocker beep
 
 rundocker:
 	@docker run --name=redminit \
