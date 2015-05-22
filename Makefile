@@ -8,7 +8,7 @@ help:
 
 build: builddocker beep
 
-run: runpostgres runredminit beep
+run: runpostgres runredis runredminit beep
 
 runbuild: builddocker runpostgres runredis runredminit beep
 
@@ -23,9 +23,11 @@ runredis:
 runredminit:
 	docker run --name=redminit \
 	-d \
-	--link=postgresql-redmine:postgresql --publish=10083:80 \
-	--link= some-redis:redis \
+	--link=postgresql-redmine:postgresql \
+	--link=some-redis:redis \
+	--publish=10083:80 \
 	--env='REDMINE_PORT=10083' \
+	--env='REDIS_URL=redis://redis:6379/12' \
 	--volume=/srv/docker/redmine/redmine:/home/redmine/data \
 	--volume=/tmp:/tmp \
 	--cidfile="redminitCID" \
